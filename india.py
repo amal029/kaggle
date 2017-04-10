@@ -89,33 +89,50 @@ def gt1(f):
     df_country_c = df_country.count()
     sorted_list = df_country_c.sort_values(by='eventid',
                                            ascending=False)
-    ax = sorted_list['eventid'][:10].plot(kind='bar', grid=True)
-    ax.set_xlabel('Country')
-    ax.set_ylabel('Number of successful terror attacks')
-    ax.get_figure().savefig('/tmp/top10.pdf', bbox_inches='tight')
+    ax = sorted_list['eventid'][:10].plot(kind='barh', grid=True)
+    ax.set_ylabel('Country')
+    ax.set_xlabel('Number of successful terror attacks')
+    ax.get_figure().savefig('/tmp/top10.png', bbox_inches='tight')
 
 
 def gt2(f):
     df = pd.read_csv(f, encoding="ISO-8859-1")
+
+    f_india_tot = df[df['country_txt'] == 'India'].groupby('iyear').count()
+    f_pak_tot = df[df['country_txt'] == 'Pakistan'].groupby('iyear').count()
+
+    # India
     df_india = df[(df['country_txt'] == 'India')
                   & (df['success'] == 1)]
     df_india_year = df_india.groupby('iyear')
     f_india = df_india_year.count()
 
+    # Pakistan
     df_pak = df[(df['country_txt'] == 'Pakistan')
                 & (df['success'] == 1)]
     df_pak_year = df_pak.groupby('iyear')
 
     f_pak = df_pak_year.count()
-
     f_countries = pd.DataFrame(index=f_india.index)
     f_countries['India'] = f_india['eventid']
     f_countries['Pakistan'] = f_pak['eventid']
-
     axi = f_countries.plot(kind='bar', grid=True)
     axi.set_ylabel('Number of successful terror attacks')
     axi.set_xlabel('Year')
-    axi.get_figure().savefig('/tmp/india_pak.pdf', bbox_inches='tight')
+    axi.set_xticklabels(f_countries.index.map(lambda x: "'"+str(x)[2:]))
+    axi.get_figure().savefig('/tmp/india_pak.png', bbox_inches='tight')
+
+    f_eff = pd.DataFrame(index=f_india.index)
+    f_eff['India_stopped'] = ((f_india_tot['eventid'] - f_india['eventid'])
+                              / f_india_tot['eventid'])*100
+    print(f_eff['India_stopped'].values.mean())
+    f_eff['Pak_stopped'] = ((f_pak_tot['eventid'] - f_pak['eventid'])
+                            / f_pak_tot['eventid'])*100
+    axi = f_eff.plot(kind='bar', grid=True)
+    axi.set_xlabel('Year')
+    axi.set_ylabel('% attacks stopped')
+    axi.set_xticklabels(f_eff.index.map(lambda x: "'"+str(x)[2:]))
+    axi.get_figure().savefig('/tmp/india_pak_stopped.png', bbox_inches='tight')
 
 
 if __name__ == '__main__':
