@@ -86,10 +86,9 @@ def gt1(f):
     df = pd.read_csv(f, encoding="ISO-8859-1")
 
     df_country = df[df['success'] == 1].groupby('country_txt')
-    df_country_c = df_country.count()
-    sorted_list = df_country_c.sort_values(by='eventid',
-                                           ascending=False)
-    ax = sorted_list['eventid'][:10].plot(kind='barh', grid=True)
+    df_country_c = df_country['eventid'].count()
+    df_country_c.sort(ascending=False)
+    ax = df_country_c[:10].plot(kind='barh', grid=True)
     ax.set_ylabel('Country')
     ax.set_xlabel('Number of successful terror attacks')
     ax.get_figure().savefig('/tmp/top10.png', bbox_inches='tight')
