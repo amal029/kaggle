@@ -42,7 +42,8 @@ def main(files):
 
     dfm['Man_of_Match'] = dfm.apply(lambda x: concat_man_match(dfp, x), axis=1)
 
-    mmw = dfm.groupby('Match_Winner_Name')['Match_Id'].count().sort_values(
+    mmw = dfm.groupby('Match_Winner_Name')['Match_Id'].\
+        count().sort_values(
         ascending=False)
     mmw.plot(kind='barh')
     # plt.show()
